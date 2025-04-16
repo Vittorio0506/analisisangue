@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="StyleSheet1.css">
+    <!-- Importa Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Importa Chart.js per i grafici -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard</h1>
+            <button id="logout-button" class="btn">Logout</button>
+        </header>
+        
+        <section class="content">
+            <div class="card">
+                <h2>Inserisci Nuovo Valore</h2>
+                <form id="value-form">
+                    <div class="form-group">
+                        <label for="date-input">Data</label>
+                        <input type="date" id="date-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="value-input">Valore</label>
+                        <input type="number" id="value-input" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="family-select">Famiglia</label>
+                        <select id="family-select" required>
+                            <option value="">Seleziona una famiglia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-select">Classe</label>
+                        <select id="class-select" required>
+                            <option value="">Seleziona una classe</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit-select">Unità di Misura</label>
+                        <select id="unit-select" required>
+                            <option value="">Seleziona un'unità</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Salva</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>Grafico Valori</h2>
+                <form id="chart-filter-form">
+                    <div class="form-group">
+                        <label for="filter-start-date">Data inizio</label>
+                        <input type="date" id="filter-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-end-date">Data fine</label>
+                        <input type="date" id="filter-end-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-class">Classe</label>
+                        <select id="filter-class">
+                            <option value="">Tutte le classi</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Filtra</button>
+                </form>
+                <div class="chart-container">
+                    <canvas id="value-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Aggiungi Evento</h2>
+                <form id="event-form">
+                    <div class="form-group">
+                        <label for="event-date">Data</label>
+                        <input type="date" id="event-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-description">Descrizione</label>
+                        <textarea id="event-description" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Salva</button>
+                </form>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Script necessari -->
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/values.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/charts.js"></script>
+    
+    <script>
+        // Verifica autenticazione all'avvio
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("Verifica autenticazione...");
+            const user = await checkAuthentication();
+            if (!user) {
+                console.log("Utente non autenticato, redirezione...");
+                window.location.href = 'index.html';
+            } else {
+                console.log("Utente autenticato:", user.email);
+            }
+        });
+    </script>
+</body>
+</html>
