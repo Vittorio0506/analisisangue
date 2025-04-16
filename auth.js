@@ -8,6 +8,20 @@ async function signUp(email, password) {
         });
         
         if (error) throw error;
+        
+        // Mostra messaggio di successo
+        const successMessage = document.querySelector('.message.success');
+        if (successMessage) {
+            successMessage.textContent = "Registrazione avvenuta con successo! Controlla la tua email per verificare l'account.";
+            successMessage.style.display = 'block';
+            
+            // Nascondi eventuali messaggi di errore
+            const errorMessage = document.querySelector('.message.error');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+        }
+        
         return data;
     } catch (error) {
         handleError(error);
@@ -59,6 +73,20 @@ async function resetPassword(email) {
         const { data, error } = await supabase.auth.resetPasswordForEmail(email);
         
         if (error) throw error;
+        
+        // Mostra messaggio di successo
+        const successMessage = document.querySelector('.message.success');
+        if (successMessage) {
+            successMessage.textContent = "Istruzioni per il reset della password inviate alla tua email.";
+            successMessage.style.display = 'block';
+            
+            // Nascondi eventuali messaggi di errore
+            const errorMessage = document.querySelector('.message.error');
+            if (errorMessage) {
+                errorMessage.style.display = 'none';
+            }
+        }
+        
         return data;
     } catch (error) {
         handleError(error);
@@ -66,7 +94,6 @@ async function resetPassword(email) {
 }
 
 // Funzione per verificare l'autenticazione
-// Aggiunta qui per garantire che sia disponibile in questo file
 async function checkAuthentication() {
     try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -84,8 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
             await signIn(email, password);
         });
     }
@@ -95,8 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
             await signUp(email, password);
         });
     }
@@ -110,17 +137,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Controlla se l'utente è autenticato
-document.addEventListener('DOMContentLoaded', async () => {
-    const user = await checkAuthentication();
-    if (!user) {
-        // Reindirizza alla pagina di login
-        window.location.href = 'index.html';
-    }
-});
-
 // Esponi le funzioni di autenticazione globalmente
 window.signIn = signIn;
 window.signUp = signUp;
 window.resetPassword = resetPassword;
 window.checkAuthentication = checkAuthentication;
+window.signOut = signOut;
