@@ -118,3 +118,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'index.html';
     }
 });
+
+// Esponi le funzioni di autenticazione globalmente
+window.signIn = signIn;
+window.signUp = signUp;
+window.resetPassword = resetPassword;
+window.checkAuthentication = checkAuthentication;
