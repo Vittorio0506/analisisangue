@@ -2,8 +2,40 @@
 // Funzione per creare un grafico dei valori
 async function createValueChart(canvasId, startDate, endDate, classId = null) {
     try {
+        // Verifica se getValues è disponibile, altrimenti la definisce localmente
+        const fetchValues = window.getValues || async function(start, end) {
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                
+                let query = supabase.from('values')
+                    .select(`
+                        *,
+                        families (name),
+                        classes (name),
+                        units (symbol)
+                    `)
+                    .eq('user_id', user.id);
+                
+                if (start) {
+                    query = query.gte('date', start);
+                }
+                
+                if (end) {
+                    query = query.lte('date', end);
+                }
+                
+                const { data, error } = await query;
+                
+                if (error) throw error;
+                return data;
+            } catch (error) {
+                handleError(error);
+                return [];
+            }
+        };
+        
         // Ottieni i valori dal database
-        const values = await getValues(startDate, endDate);
+        const values = await fetchValues(startDate, endDate);
         
         // Filtra per classe se specificata
         let filteredValues = values;
@@ -81,7 +113,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Controlla se l'utente è autenticato
 document.addEventListener('DOMContentLoaded', async () => {
-    const user = await checkAuthentication();
+    // Utilizziamo checkAuthentication se disponibile a livello globale
+    const checkAuth = window.checkAuthentication || async function() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            return user;
+        } catch (error) {
+            handleError(error);
+            return null;
+        }
+    };
+    
+    const user = await checkAuth();
     if (!user) {
         // Reindirizza alla pagina di login
         window.location.href = 'index.html';

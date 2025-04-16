@@ -1,10 +1,8 @@
-// js/supabase.js
-const SUPABASE_URL = 'https://tuo-progetto-id.supabase.co';
-const SUPABASE_KEY = 'tua-chiave-api-pubblica';
+const SUPABASE_URL = 'https://mgicdbgaokksyetwemjr.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1naWNkYmdhb2trc3lldHdlbWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzOTA2OTksImV4cCI6MjA1OTk2NjY5OX0.JSUQoohut0nIrJFmH3oZZNTLtYZekS22bFcgmT3kX_Y';
 
-// Inizializza il client Supabase
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+// Inizializza il client Supabase (utilizza la libreria globale importata)
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Verifica se l'utente è già autenticato
 async function checkAuthentication() {
     const { data: { user } } = await supabase.auth.getUser();

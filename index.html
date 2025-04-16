@@ -3,21 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Il Tuo Progetto</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Analisi Sangue Registro</title>
+    <link rel="stylesheet" href="StyleSheet1.css">
     <!-- Includi la libreria Supabase -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <!-- Includi Chart.js per i grafici -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Contenuto della pagina -->
-    
+    <div class="container">
+        <div class="auth-container">
+            <h1>Benvenuto nell'App</h1>
+            
+            <!-- Tab di navigazione -->
+            <div class="auth-tabs">
+                <button id="login-tab" class="active">Accedi</button>
+                <button id="signup-tab">Registrati</button>
+                <button id="reset-tab">Password dimenticata</button>
+            </div>
+            
+            <!-- Form di login -->
+            <div id="login-form-container" class="form-container active">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Accedi</button>
+                </form>
+            </div>
+            
+            <!-- Form di registrazione -->
+            <div id="signup-form-container" class="form-container">
+                <form id="signup-form">
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm-password">Conferma Password</label>
+                        <input type="password" id="signup-confirm-password" name="confirm-password" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrati</button>
+                </form>
+            </div>
+            
+            <!-- Form di reset password -->
+            <div id="reset-form-container" class="form-container">
+                <form id="reset-form">
+                    <div class="form-group">
+                        <label for="reset-email">Email</label>
+                        <input type="email" id="reset-email" name="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Invia istruzioni di recupero</button>
+                </form>
+            </div>
+            
+            <div id="auth-message" class="message"></div>
+        </div>
+    </div>
+
     <!-- Script personalizzati -->
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/values.js"></script>
-    <script src="js/events.js"></script>
-    <script src="js/charts.js"></script>
+    
+    <script>
+        // Gestione delle tab per passare tra i form
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginTab = document.getElementById('login-tab');
+            const signupTab = document.getElementById('signup-tab');
+            const resetTab = document.getElementById('reset-tab');
+            
+            const loginFormContainer = document.getElementById('login-form-container');
+            const signupFormContainer = document.getElementById('signup-form-container');
+            const resetFormContainer = document.getElementById('reset-form-container');
+            
+            // Funzione per cambiare tab
+            function switchTab(activeTab, activeContainer) {
+                // Rimuovi la classe active da tutte le tab
+                [loginTab, signupTab, resetTab].forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Rimuovi la classe active da tutti i container
+                [loginFormContainer, signupFormContainer, resetFormContainer].forEach(container => {
+                    container.classList.remove('active');
+                });
+                
+                // Aggiungi la classe active alla tab e al container selezionati
+                activeTab.classList.add('active');
+                activeContainer.classList.add('active');
+            }
+            
+            // Event listener per le tab
+            loginTab.addEventListener('click', () => {
+                switchTab(loginTab, loginFormContainer);
+            });
+            
+            signupTab.addEventListener('click', () => {
+                switchTab(signupTab, signupFormContainer);
+            });
+            
+            resetTab.addEventListener('click', () => {
+                switchTab(resetTab, resetFormContainer);
+            });
+            
+            // Modifica i form per usare gli ID corretti
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    try {
+                        await signIn(email, password);
+                    } catch (error) {
+                        const messageEl = document.getElementById('auth-message');
+                        messageEl.textContent = error.message || 'Errore durante il login';
+                        messageEl.classList.add('error');
+                    }
+                });
+            }
+            
+            const signupForm = document.getElementById('signup-form');
+            if (signupForm) {
+                signupForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('signup-email').value;
+                    const password = document.getElementById('signup-password').value;
+                    const confirmPassword = document.getElementById('signup-confirm-password').value;
+                    
+                    const messageEl = document.getElementById('auth-message');
+                    
+                    if (password !== confirmPassword) {
+                        messageEl.textContent = 'Le password non corrispondono';
+                        messageEl.classList.add('error');
+                        return;
+                    }
+                    
+                    try {
+                        const result = await signUp(email, password);
+                        messageEl.textContent = 'Registrazione avvenuta con successo! Controlla la tua email per la conferma.';
+                        messageEl.classList.remove('error');
+                        messageEl.classList.add('success');
+                    } catch (error) {
+                        messageEl.textContent = error.message || 'Errore durante la registrazione';
+                        messageEl.classList.add('error');
+                    }
+                });
+            }
+            
+            const resetForm = document.getElementById('reset-form');
+            if (resetForm) {
+                resetForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('reset-email').value;
+                    try {
+                        await resetPassword(email);
+                        const messageEl = document.getElementById('auth-message');
+                        messageEl.textContent = 'Istruzioni per il recupero password inviate alla tua email';
+                        messageEl.classList.remove('error');
+                        messageEl.classList.add('success');
+                    } catch (error) {
+                        const messageEl = document.getElementById('auth-message');
+                        messageEl.textContent = error.message || 'Errore durante l\'invio delle istruzioni';
+                        messageEl.classList.add('error');
+                    }
+                });
+            }
+            
+            // Verifica se l'utente è già autenticato
+            checkAuthentication().then(user => {
+                if (user) {
+                    // Se l'utente è già autenticato, reindirizza alla dashboard
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

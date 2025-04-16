@@ -65,6 +65,18 @@ async function resetPassword(email) {
     }
 }
 
+// Funzione per verificare l'autenticazione
+// Aggiunta qui per garantire che sia disponibile in questo file
+async function checkAuthentication() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
+    } catch (error) {
+        handleError(error);
+        return null;
+    }
+}
+
 // Aggiungi event listener per i form quando il DOM è caricato
 document.addEventListener('DOMContentLoaded', () => {
     // Form di login

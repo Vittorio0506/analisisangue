@@ -129,10 +129,10 @@ def add_event(user_id, date, description):
         print(f"Errore in add_event: {str(e)}")
         raise e
 
-# READ - Lettura di eventi con possibilità di filtri
-def get_events(user_id, start_date=None, end_date=None):
+# READ - Ottenere i valori con filtri opzionali
+def get_values(user_id, start_date=None, end_date=None):
     """
-    Ottiene eventi dal database con filtri opzionali.
+    Ottiene i valori dal database con filtri opzionali.
     
     Args:
         user_id (str): ID dell'utente
@@ -140,12 +140,12 @@ def get_events(user_id, start_date=None, end_date=None):
         end_date (str, optional): Data di fine in formato 'YYYY-MM-DD'
         
     Returns:
-        list: Lista degli eventi che soddisfano i criteri
+        list: Lista dei valori che soddisfano i criteri
     """
     try:
         # Inizia la query
-        query = supabase.table('events')\
-            .select('*')\
+        query = supabase.table('values')\
+            .select('*, families(name), classes(name), units(symbol)')\
             .eq('user_id', user_id)
         
         # Applica i filtri opzionali
@@ -154,7 +154,7 @@ def get_events(user_id, start_date=None, end_date=None):
         if end_date:
             query = query.lte('date', end_date)
         
-        # Ordina per data in ordine decrescente
+        # Ordina per data
         query = query.order('date', desc=True)
         
         # Esegui la query
@@ -162,9 +162,39 @@ def get_events(user_id, start_date=None, end_date=None):
         
         return response.data
     except Exception as e:
-        print(f"Errore in get_events: {str(e)}")
+        print(f"Errore in get_values: {str(e)}")
         raise e
 
+# CREATE - Aggiungere un nuovo valore
+def add_value(user_id, date, numeric_value, family_id, class_id, unit_id):
+    """
+    Aggiunge un nuovo valore nel database.
+    
+    Args:
+        user_id (str): ID dell'utente
+        date (str): Data in formato 'YYYY-MM-DD'
+        numeric_value (float): Valore numerico
+        family_id (str): ID della famiglia
+        class_id (str): ID della classe
+        unit_id (str): ID dell'unità di misura
+        
+    Returns:
+        dict: Dati del valore inserito
+    """
+    try:
+        response = supabase.table('values').insert({
+            'user_id': user_id,
+            'date': date,
+            'numeric_value': numeric_value,
+            'family_id': family_id,
+            'class_id': class_id,
+            'unit_id': unit_id
+        }).execute()
+        
+        return response.data
+    except Exception as e:
+        print(f"Errore in add_value: {str(e)}")
+        raise e
 # UPDATE - Aggiornamento di un evento esistente
 def update_event(event_id, data):
     """
